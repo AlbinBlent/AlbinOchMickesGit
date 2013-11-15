@@ -1,50 +1,44 @@
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
-import org.apache.http.StatusLine;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class Main {
 
 	public static void main(String[] args) {
-		HttpClient httpclient = new DefaultHttpClient();
-
-		HttpResponse response;
-		String responseString = null;
-		long pingTime = 0;
-		final long startTime = System.currentTimeMillis();
-
+		RequestHttp request = new RequestHttp();
+		long pingTime;
+		SimpleDateFormat s = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		PrintWriter writer = null;
+	try {
+		writer = new PrintWriter("PC-Ping.csv", "UTF-8");
+	} catch (FileNotFoundException e1) {
+		// TODO Auto-generated catch block
+		e1.printStackTrace();
+	} catch (UnsupportedEncodingException e1) {
+		// TODO Auto-generated catch block
+		e1.printStackTrace();
+	}
 		try {
+			for (int i = 0; i < 5; i++) {
+
+				pingTime = request.getResponse();
+				String timeStamp = s.format(new Date());
+
 			
-			response = httpclient.execute(new HttpGet("http://nytimes.se"));
-			StatusLine statusLine = response.getStatusLine();
+				writer.println(timeStamp + "," + String.valueOf(pingTime));
 
-			if (statusLine.getStatusCode() == HttpStatus.SC_OK) {
-				ByteArrayOutputStream out = new ByteArrayOutputStream();
-				response.getEntity().writeTo(out);
-				out.close();
-				responseString = out.toString();
-
-				final long endTime = System.currentTimeMillis();
-				pingTime = endTime - startTime;
-				System.out.println("http: " + pingTime);
-
-			} else {
-				System.out.println("gick inte");
-				// Closes the connection.
-				response.getEntity().getContent().close();
-				throw new IOException(statusLine.getReasonPhrase());
+				Thread.sleep(1000);
 			}
-		} catch (ClientProtocolException e) {
-			// TODO Handle problems..
-		} catch (IOException e) {
-			// TODO Handle problems..
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally {
+			try {
+				writer.close();
+			} catch (Exception ex) {
+			}
 		}
-
 	}
 }
