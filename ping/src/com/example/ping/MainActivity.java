@@ -2,23 +2,21 @@ package com.example.ping;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
+
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
-import android.telephony.CellIdentityGsm;
-import android.telephony.CellInfo;
-import android.telephony.CellInfoGsm;
-import android.telephony.CellSignalStrengthGsm;
+import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
+import android.telephony.gsm.GsmCellLocation;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 
-@TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
+
 @SuppressLint("NewApi")
 public class MainActivity extends Activity implements AsyncResponse {
 	RequestHttp requestHttp = new RequestHttp();
@@ -29,90 +27,54 @@ public class MainActivity extends Activity implements AsyncResponse {
 	TextView text;
 	String host;
 
-	@TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
-	@SuppressLint("NewApi")
+	SignalStrengthListener signalStrengthListener;
+	TelephonyManager tm;
+	
+	String httpPing;
+	int dbm;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		requestHttp.delegate = this;
-		 //Get the instance of TelephonyManager  
-        TelephonyManager  tm=(TelephonyManager)getSystemService(Context.TELEPHONY_SERVICE);  
-         
-        List<CellInfo> cellInfos = (List<CellInfo>) tm.getAllCellInfo();
-        
-        for(CellInfo cellInfo : cellInfos)
-        {
-            CellInfoGsm cellInfoGsm = (CellInfoGsm) cellInfo;
+		
+		
+		tm = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
 
-            CellIdentityGsm cellIdentity = cellInfoGsm.getCellIdentity();
-            CellSignalStrengthGsm cellSignalStrengthGsm = cellInfoGsm.getCellSignalStrength();
+		// start the signal strength listener
+		signalStrengthListener = new SignalStrengthListener();
+		tm.listen(signalStrengthListener,
+				SignalStrengthListener.LISTEN_SIGNAL_STRENGTHS);
 
-            System.out.println("cellInfoGsm.isRegisterd: " + cellInfoGsm.isRegistered());
-            
-            System.out.println("cellIdentity: " + cellIdentity.toString());
-            
-            System.out.println("cellSignalStrengthGsm: " + cellSignalStrengthGsm.toString());
-        }
-        
-        //Calling the methods of TelephonyManager the returns the information  
-        String IMEINumber=tm.getDeviceId();  
-        String subscriberID=tm.getDeviceId();  
-        String SIMSerialNumber=tm.getSimSerialNumber();  
-        String networkCountryISO=tm.getNetworkCountryIso();  
-        String SIMCountryISO=tm.getSimCountryIso();  
-        String softwareVersion=tm.getDeviceSoftwareVersion();  
-        String voiceMailNumber=tm.getVoiceMailNumber();  
-          
-        //Get the phone type  
-        String strphoneType="";  
-          
-        int phoneType=tm.getPhoneType();  
-  
-        switch (phoneType)   
-        {  
-                case (TelephonyManager.PHONE_TYPE_CDMA):  
-                           strphoneType="CDMA";  
-                               break;  
-                case (TelephonyManager.PHONE_TYPE_GSM):   
-                           strphoneType="GSM";                
-                               break;  
-                case (TelephonyManager.PHONE_TYPE_NONE):  
-                            strphoneType="NONE";                
-                                break;  
-         }  
-          
-        //getting information if phone is in roaming  
-        boolean isRoaming=tm.isNetworkRoaming();  
-          
-        String info="Phone Details:\n";  
-        info+="\n IMEI Number:"+IMEINumber;  
-        info+="\n SubscriberID:"+subscriberID;  
-        info+="\n Sim Serial Number:"+SIMSerialNumber;  
-        info+="\n Network Country ISO:"+networkCountryISO;  
-        info+="\n SIM Country ISO:"+SIMCountryISO;  
-        info+="\n Software Version:"+softwareVersion;  
-        info+="\n Voice Mail Number:"+voiceMailNumber;  
-        info+="\n Phone Network Type:"+strphoneType;  
-        info+="\n In Roaming? :"+isRoaming;  
-        
-        System.out.println(info);
+		int cellIDny = getCID(getApplicationContext()); // FUNKAR BRA
+		System.out.println("cellIDny: " + cellIDny);
 	}
 
-	public void sendPing(View view) {
-		// Intent intent = new Intent(this, DisplayMessageActivity.class);
+	/* Called when the application is minimized */										//KANSKE VI INTE VILL HA DÅ VI VILL SAMLA DATA HELA TIDEN
+	@Override
+	protected void onPause() {
+		super.onPause();
+		tm.listen(signalStrengthListener, PhoneStateListener.LISTEN_NONE);
+	}
+
+	/* Called when the application resumes */											//KANSKE VI INTE VILL HA DÅ VI VILL SAMLA DATA HELA TIDEN
+	@Override
+	protected void onResume() {
+		super.onResume();
+		tm.listen(signalStrengthListener, PhoneStateListener.LISTEN_SIGNAL_STRENGTHS);
+	}
+
+	public void start(View view) {
 		EditText editText = (EditText) findViewById(R.id.ping_adress);
 		host = editText.getText().toString();
-		// intent.putExtra(EXTRA_MESSAGE, message);
-		// startActivity(intent);
-		// new LongOperation().execute(host);
 		requestHttp.execute(host);
+		
 	}
 
-
 	@Override
-	public void processFinish(Long output) {
+	public void processFinish(Long output) {			
 		// TODO Auto-generated method stub
 		System.out.println("processF: " + output);
 
@@ -128,13 +90,181 @@ public class MainActivity extends Activity implements AsyncResponse {
 	@Override
 	public void processUppdate(Long output) {
 		// TODO Auto-generated method stub
-		System.out.println("processU: " + output);
 
 		String message = String.valueOf(output);
-		
-		String format = s.format(new Date());
-		
-		TextView text = (TextView) findViewById(R.id.textView1);
-		text.append("time: " + format + " uppdate IP: " + host + " ms: " + message + "\n ");
+		httpPing = message;
+
+//		TextView text = (TextView) findViewById(R.id.textView1);
+//		text.append("time: " + httpPing + " uppdate IP: " + host + " ms: "
+//				+ message + "\n ");
 	}
+
+	public static int getCID(Context ctx) {
+		try {
+			TelephonyManager tm = (TelephonyManager) ctx
+					.getSystemService(Context.TELEPHONY_SERVICE);
+			GsmCellLocation location = (GsmCellLocation) tm.getCellLocation();
+
+			// location.getLac(); //ska med
+
+			int locationCellid = location.getCid();
+			int cellId = -1; // set to unknown location by default
+
+			if (locationCellid > 0) { // known location
+				cellId = locationCellid & 0xffff; // get only valuable bytes
+			}
+			return cellId;
+		} catch (Exception ignored) {
+		}
+
+		return -1;
+	}
+
+	private class SignalStrengthListener extends PhoneStateListener {
+		@Override
+		public void onSignalStrengthsChanged(
+				android.telephony.SignalStrength signalStrength) {
+
+			System.out.println("netType: " + getNetType(tm));
+
+			// get the signal strength (a value between 0 and 31)
+			switch (tm.getNetworkType()) {
+			case 0:
+				// NetTypeStr = "unknown";
+
+				break;
+			case 1:
+				// NetTypeStr = "GPRS";
+
+			case 2:
+				// NetTypeStr = "EDGE";
+
+			case 3:
+				// NetTypeStr = "UMTS";
+				int strengthAmplitude = signalStrength.getGsmSignalStrength();
+				dbm = (-113 + strengthAmplitude * 2);
+				break;
+			case 4:
+				// NetTypeStr = "CDMA";
+				dbm = signalStrength.getCdmaDbm();
+				break;
+			case 5:
+				// NetTypeStr = "EVDO_0";
+				break;
+			case 6:
+				// NetTypeStr = "EVDO_A";
+				break;
+			case 7:
+				// NetTypeStr = "1xRTT";
+				break;
+			case 8:
+				// NetTypeStr = "HSDPA";
+				dbm = signalStrength.getCdmaDbm();
+				break;
+			case 9:
+				// NetTypeStr = "HSUPA";
+				dbm = signalStrength.getCdmaDbm();
+				break;
+			case 10:
+				// NetTypeStr = "HSPA";
+				dbm = signalStrength.getCdmaDbm();
+				break;
+			case 11:
+				// NetTypeStr = "iDen";
+				break;
+			case 12:
+				// NetTypeStr = "EVDO_B";
+				break;
+			case 13:
+				// NetTypeStr = "LTE";
+				break;
+			case 14:
+				// NetTypeStr = "eHRPD";
+				break;
+			case 15:
+				// NetTypeStr = "HSPA+";
+				dbm = signalStrength.getCdmaDbm();
+				
+				break;
+			}
+			// do something with it (in this case we update a text view)
+			System.out.println("Dbm: " + dbm);
+			super.onSignalStrengthsChanged(signalStrength);
+
+			TextView text = (TextView) findViewById(R.id.textView1);
+			text.append("dbm: " + dbm + "\n ");
+		}
+	}
+
+	public String getNetType(TelephonyManager tm) {
+		String NetTypeStr = "unknown";
+		switch (tm.getNetworkType()) {
+		case 0:
+			NetTypeStr = "unknown";
+			break;
+		case 1:
+			NetTypeStr = "GPRS";
+			break;
+		case 2:
+			NetTypeStr = "EDGE";
+			break;
+		case 3:
+			NetTypeStr = "UMTS";
+			break;
+		case 4:
+			NetTypeStr = "CDMA";
+			break;
+		case 5:
+			NetTypeStr = "EVDO_0";
+			break;
+		case 6:
+			NetTypeStr = "EVDO_A";
+			break;
+		case 7:
+			NetTypeStr = "1xRTT";
+			break;
+		case 8:
+			NetTypeStr = "HSDPA";
+			break;
+		case 9:
+			NetTypeStr = "HSUPA";
+			break;
+		case 10:
+			NetTypeStr = "HSPA";
+			break;
+		case 11:
+			NetTypeStr = "iDen";
+			break;
+		case 12:
+			NetTypeStr = "EVDO_B";
+			break;
+		case 13:
+			NetTypeStr = "LTE";
+			break;
+		case 14:
+			NetTypeStr = "eHRPD";
+			break;
+		case 15:
+			NetTypeStr = "HSPA+";
+			break;
+		}
+		return NetTypeStr;
+	}
+	public void collectAndStoreValuse(int samples,int interval){
+		for (int i = 0; i < samples; i++) {
+			
+			try {
+				Thread.sleep(interval);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			String collectedData = "time: " + s.format(new Date()) + " IP: " + host + " ms: "
+					+ httpPing + " dBm: " + dbm + " cellID: " + getCID(getApplicationContext()) + "\n ";
+			TextView text = (TextView) findViewById(R.id.textView1);
+			text.append(collectedData);
+		}
+	}
+
 }
