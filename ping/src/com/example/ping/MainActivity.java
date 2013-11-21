@@ -17,8 +17,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 
-public class MainActivity extends Activity implements AsyncResponse {
-	RequestHttp requestHttp = new RequestHttp();
+public class MainActivity extends Activity  {
 	SimpleDateFormat s = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 	public final static String EXTRA_MESSAGE = "com.example.ping.MESSAGE";
 
@@ -31,22 +30,25 @@ public class MainActivity extends Activity implements AsyncResponse {
 	int dbm;
 	int interval;
 	EditText editText;
-	MyTimerTask myTask;
+	MyTimerTask myCollectorTask;
 	MyHttpRequestTask myHttpRequestTask;
-	Timer myTimer;
+	Timer myCollectorTimer;
+	Timer myHttpRequestTimer;
 	TextView textView1;
+	HttpRequest httpRequest;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-		requestHttp.delegate = this;
 		editText = (EditText) findViewById(R.id.ping_adress);
 		interval = 1000;
 		textView1 = (TextView) findViewById(R.id.textView1);
 
 		tm = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
+		
+		httpRequest = new HttpRequest();
 
 		// start the signal strength listener
 		signalStrengthListener = new SignalStrengthListener();
@@ -58,6 +60,8 @@ public class MainActivity extends Activity implements AsyncResponse {
 	class MyHttpRequestTask extends TimerTask{
 		public void run() {
 			
+		
+			httpPing = String.valueOf(httpRequest.getHttpResponseTime());
 		}
 	}
 
@@ -67,7 +71,6 @@ public class MainActivity extends Activity implements AsyncResponse {
 				
 				@Override
 				public void run() {
-					interval++;
 					updateView(collectData());
 				}
 			});
@@ -95,18 +98,26 @@ public class MainActivity extends Activity implements AsyncResponse {
 	public void startButton(View view) {
 
 		host = editText.getText().toString();
-		requestHttp.execute(host);
+		
+		
+		httpRequest.setHost(host);
+		myHttpRequestTask = new MyHttpRequestTask();
+		myHttpRequestTimer = new Timer();
+		myHttpRequestTimer.schedule(myHttpRequestTask,0, 50);
+		
 
-		myTask = new MyTimerTask();
-		myTimer = new Timer();
-		myTimer.schedule(myTask, 0, interval);
+		myCollectorTask = new MyTimerTask();
+		myCollectorTimer = new Timer();
+		myCollectorTimer.schedule(myCollectorTask, 0, interval);
 
 	}
 
 	public void stopButton(View view) {
-		myTask.cancel();
-		myTimer.cancel();
-		System.out.println("interval: " + interval);
+		myHttpRequestTask.cancel();
+		myHttpRequestTimer.cancel();
+		
+		myCollectorTask.cancel();
+		myCollectorTimer.cancel();
 	}
 
 	public String collectData() {
@@ -121,20 +132,6 @@ public class MainActivity extends Activity implements AsyncResponse {
 	public void updateView(String out) {
 		textView1.setMovementMethod(new ScrollingMovementMethod());
 		textView1.append(out);
-	}
-
-	@Override
-	public void processFinish(Long output) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void processUppdate(Long output) {
-		// TODO Auto-generated method stub
-
-		String message = String.valueOf(output);
-		httpPing = message;
 	}
 
 	public static int getCID(Context ctx) {
@@ -163,65 +160,10 @@ public class MainActivity extends Activity implements AsyncResponse {
 		public void onSignalStrengthsChanged(
 				android.telephony.SignalStrength signalStrength) {
 			// get the signal strength (a value between 0 and 31)
-			switch (tm.getNetworkType()) {
-			case 0:
-				// NetTypeStr = "unknown";
-
-				break;
-			case 1:
-				// NetTypeStr = "GPRS";
-
-			case 2:
-				// NetTypeStr = "EDGE";
-
-			case 3:
-				// NetTypeStr = "UMTS";
+			
 				int strengthAmplitude = signalStrength.getGsmSignalStrength();
 				dbm = (-113 + strengthAmplitude * 2);
-				break;
-			case 4:
-				// NetTypeStr = "CDMA";
-				dbm = signalStrength.getCdmaDbm();
-				break;
-			case 5:
-				// NetTypeStr = "EVDO_0";
-				break;
-			case 6:
-				// NetTypeStr = "EVDO_A";
-				break;
-			case 7:
-				// NetTypeStr = "1xRTT";
-				break;
-			case 8:
-				// NetTypeStr = "HSDPA";
-				dbm = signalStrength.getCdmaDbm();
-				break;
-			case 9:
-				// NetTypeStr = "HSUPA";
-				dbm = signalStrength.getCdmaDbm();
-				break;
-			case 10:
-				// NetTypeStr = "HSPA";
-				dbm = signalStrength.getCdmaDbm();
-				break;
-			case 11:
-				// NetTypeStr = "iDen";
-				break;
-			case 12:
-				// NetTypeStr = "EVDO_B";
-				break;
-			case 13:
-				// NetTypeStr = "LTE";
-				break;
-			case 14:
-				// NetTypeStr = "eHRPD";
-				break;
-			case 15:
-				// NetTypeStr = "HSPA+";
-				dbm = signalStrength.getCdmaDbm();
-
-				break;
-			}
+				
 			super.onSignalStrengthsChanged(signalStrength);
 		}
 	}
