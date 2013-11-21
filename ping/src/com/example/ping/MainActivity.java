@@ -2,36 +2,39 @@ package com.example.ping;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Timer;
+import java.util.TimerTask;
 
-import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
-import android.os.Build;
 import android.os.Bundle;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.telephony.gsm.GsmCellLocation;
+import android.text.method.ScrollingMovementMethod;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 
 
-@SuppressLint("NewApi")
 public class MainActivity extends Activity implements AsyncResponse {
 	RequestHttp requestHttp = new RequestHttp();
 	SimpleDateFormat s = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 	public final static String EXTRA_MESSAGE = "com.example.ping.MESSAGE";
 
-	EditText edit;
-	TextView text;
 	String host;
 
 	SignalStrengthListener signalStrengthListener;
 	TelephonyManager tm;
-	
+
 	String httpPing;
 	int dbm;
+	int interval;
+	EditText editText;
+	MyTimerTask myTask;
+	MyHttpRequestTask myHttpRequestTask;
+	Timer myTimer;
+	TextView textView1;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -39,8 +42,10 @@ public class MainActivity extends Activity implements AsyncResponse {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		requestHttp.delegate = this;
-		
-		
+		editText = (EditText) findViewById(R.id.ping_adress);
+		interval = 1000;
+		textView1 = (TextView) findViewById(R.id.textView1);
+
 		tm = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
 
 		// start the signal strength listener
@@ -48,42 +53,79 @@ public class MainActivity extends Activity implements AsyncResponse {
 		tm.listen(signalStrengthListener,
 				SignalStrengthListener.LISTEN_SIGNAL_STRENGTHS);
 
-		int cellIDny = getCID(getApplicationContext()); // FUNKAR BRA
-		System.out.println("cellIDny: " + cellIDny);
+	}
+	
+	class MyHttpRequestTask extends TimerTask{
+		public void run() {
+			
+		}
 	}
 
-	/* Called when the application is minimized */										//KANSKE VI INTE VILL HA DÅ VI VILL SAMLA DATA HELA TIDEN
+	class MyTimerTask extends TimerTask {
+		public void run() {
+			runOnUiThread(new Runnable() {
+				
+				@Override
+				public void run() {
+					interval++;
+					updateView(collectData());
+				}
+			});
+		}
+	}
+
+	/* Called when the application is minimized */// KANSKE VI INTE VILL HA DÅ
+													// VI VILL SAMLA DATA HELA
+													// TIDEN
 	@Override
 	protected void onPause() {
 		super.onPause();
 		tm.listen(signalStrengthListener, PhoneStateListener.LISTEN_NONE);
 	}
 
-	/* Called when the application resumes */											//KANSKE VI INTE VILL HA DÅ VI VILL SAMLA DATA HELA TIDEN
+	/* Called when the application resumes */// KANSKE VI INTE VILL HA DÅ VI
+												// VILL SAMLA DATA HELA TIDEN
 	@Override
 	protected void onResume() {
 		super.onResume();
-		tm.listen(signalStrengthListener, PhoneStateListener.LISTEN_SIGNAL_STRENGTHS);
+		tm.listen(signalStrengthListener,
+				PhoneStateListener.LISTEN_SIGNAL_STRENGTHS);
 	}
 
-	public void start(View view) {
-		EditText editText = (EditText) findViewById(R.id.ping_adress);
+	public void startButton(View view) {
+
 		host = editText.getText().toString();
 		requestHttp.execute(host);
-		
+
+		myTask = new MyTimerTask();
+		myTimer = new Timer();
+		myTimer.schedule(myTask, 0, interval);
+
+	}
+
+	public void stopButton(View view) {
+		myTask.cancel();
+		myTimer.cancel();
+		System.out.println("interval: " + interval);
+	}
+
+	public String collectData() {
+
+		String collectedData = "time: " + s.format(new Date()) + " IP: " + host
+				+ " ms: " + httpPing + " dBm: " + dbm + " cellID: "
+				+ getCID(getApplicationContext()) + "\n ";
+
+		return collectedData;
+	}
+
+	public void updateView(String out) {
+		textView1.setMovementMethod(new ScrollingMovementMethod());
+		textView1.append(out);
 	}
 
 	@Override
-	public void processFinish(Long output) {			
+	public void processFinish(Long output) {
 		// TODO Auto-generated method stub
-		System.out.println("processF: " + output);
-
-		String message = String.valueOf(output);
-
-		System.out.println("result " + message);
-
-		TextView text = (TextView) findViewById(R.id.textView1);
-		text.append("IP: " + host + " ms: " + message + "\n ");
 
 	}
 
@@ -93,10 +135,6 @@ public class MainActivity extends Activity implements AsyncResponse {
 
 		String message = String.valueOf(output);
 		httpPing = message;
-
-//		TextView text = (TextView) findViewById(R.id.textView1);
-//		text.append("time: " + httpPing + " uppdate IP: " + host + " ms: "
-//				+ message + "\n ");
 	}
 
 	public static int getCID(Context ctx) {
@@ -124,9 +162,6 @@ public class MainActivity extends Activity implements AsyncResponse {
 		@Override
 		public void onSignalStrengthsChanged(
 				android.telephony.SignalStrength signalStrength) {
-
-			System.out.println("netType: " + getNetType(tm));
-
 			// get the signal strength (a value between 0 and 31)
 			switch (tm.getNetworkType()) {
 			case 0:
@@ -184,15 +219,10 @@ public class MainActivity extends Activity implements AsyncResponse {
 			case 15:
 				// NetTypeStr = "HSPA+";
 				dbm = signalStrength.getCdmaDbm();
-				
+
 				break;
 			}
-			// do something with it (in this case we update a text view)
-			System.out.println("Dbm: " + dbm);
 			super.onSignalStrengthsChanged(signalStrength);
-
-			TextView text = (TextView) findViewById(R.id.textView1);
-			text.append("dbm: " + dbm + "\n ");
 		}
 	}
 
@@ -250,21 +280,4 @@ public class MainActivity extends Activity implements AsyncResponse {
 		}
 		return NetTypeStr;
 	}
-	public void collectAndStoreValuse(int samples,int interval){
-		for (int i = 0; i < samples; i++) {
-			
-			try {
-				Thread.sleep(interval);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			
-			String collectedData = "time: " + s.format(new Date()) + " IP: " + host + " ms: "
-					+ httpPing + " dBm: " + dbm + " cellID: " + getCID(getApplicationContext()) + "\n ";
-			TextView text = (TextView) findViewById(R.id.textView1);
-			text.append(collectedData);
-		}
-	}
-
 }

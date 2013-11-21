@@ -24,7 +24,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:onClick="start"
+            android:onClick="startButton"
             android:text="@string/button_start" />
 
         <Button
@@ -32,7 +32,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:onClick="stop"
+            android:onClick="stopButton"
             android:text="@string/button_stop" />
     </LinearLayout>
 
