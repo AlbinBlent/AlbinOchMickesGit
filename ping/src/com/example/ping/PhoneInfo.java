@@ -20,11 +20,12 @@ public class PhoneInfo {
 				SignalStrengthListener.LISTEN_SIGNAL_STRENGTHS);
 
 	}
-	
-	public TelephonyManager getTM(){
-		return tm;
+	public void pausePhoneInfoListner(){
+		tm.listen(signalStrengthListener, PhoneStateListener.LISTEN_NONE);
 	}
-
+	public void resumePhoneInfoListner(){
+		tm.listen(signalStrengthListener, PhoneStateListener.LISTEN_SIGNAL_STRENGTHS);
+	}
 	public int getCID() {
 		try {
 

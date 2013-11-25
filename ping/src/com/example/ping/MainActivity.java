@@ -5,16 +5,23 @@ import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 
+
+
+
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
-import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
-import android.telephony.gsm.GsmCellLocation;
 import android.text.method.ScrollingMovementMethod;
+import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class MainActivity extends Activity {
 	SimpleDateFormat s = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -81,20 +88,55 @@ public class MainActivity extends Activity {
 													// VI VILL SAMLA DATA HELA
 													// TIDEN
 													// @Override
-//	 protected void onPause() {														SKRIV DESSA METODER I PHONEINFO CLASSEN!!!
-//	 super.onPause();
-//	 phoneInfo.getTM().listen(signalStrengthListener, PhoneStateListener.LISTEN_NONE);
-//	 }
-//
-//	/* Called when the application resumes */// KANSKE VI INTE VILL HA DÅ VI
-//												// VILL SAMLA DATA HELA TIDEN
-//												// @Override
-//	 protected void onResume() {												SKRIV DESSA METODER I PHONEINFO CLASSEN!!!
-//	 super.onResume();
-//	 phoneInfo.getTM().listen(signalStrengthListener,
-//	 PhoneStateListener.LISTEN_SIGNAL_STRENGTHS);
-//	 }
+	 protected void onPause() {			
+	 super.onPause();
+	 phoneInfo.pausePhoneInfoListner();
+	 }
 
+	/* Called when the application resumes */// KANSKE VI INTE VILL HA DÅ VI
+												// VILL SAMLA DATA HELA TIDEN
+												// @Override
+	 protected void onResume() {												
+	 super.onResume();
+	 phoneInfo.resumePhoneInfoListner();
+	 }
+
+	 // Initiating Menu XML file (menu.xml)
+	    @Override
+	    public boolean onCreateOptionsMenu(Menu menu)
+	    {
+	        MenuInflater menuInflater = getMenuInflater();
+	        menuInflater.inflate(R.layout.menu, menu);
+	        return true;
+	    }
+	     
+	    /**
+	     * Event Handling for Individual menu item selected
+	     * Identify single menu item by it's id
+	     * */
+	    @Override
+	    public boolean onOptionsItemSelected(MenuItem item)
+	    {
+	         
+	        switch (item.getItemId())
+	        {	        	 
+	        case R.id.menu_settings:
+	        	Intent k = new Intent(MainActivity.this, SettingsActivity.class);
+	        	startActivity(k);
+	            Toast.makeText(MainActivity.this, "Settings is Selected", Toast.LENGTH_SHORT).show();
+	            return true;
+	            
+	        case R.id.menu_help:
+//	        	Intent k = new Intent(MainActivity.this, SettingsActivity.class);
+//	        	startActivity(k);
+	            Toast.makeText(MainActivity.this, "Help is Selected", Toast.LENGTH_SHORT).show();
+	            return true;
+	 
+	        default:
+	            return super.onOptionsItemSelected(item);
+	        }
+	    }    
+	 
 	public void startButton(View view) {
 
 		host = editText.getText().toString();
@@ -136,7 +178,8 @@ public class MainActivity extends Activity {
 	}
 
 	public void updateView(String out) {
+		String oldText = textView1.getText().toString();
 		textView1.setMovementMethod(new ScrollingMovementMethod());
-		textView1.append(out);
+		textView1.setText(out + oldText);
 	}
 }
