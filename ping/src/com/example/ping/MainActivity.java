@@ -43,6 +43,7 @@ public class MainActivity extends Activity {
 	TextView textView1;
 	HttpRequest httpRequest;
 	PhoneInfo phoneInfo;
+	LogToFile logObject;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -57,7 +58,9 @@ public class MainActivity extends Activity {
 
 		httpRequest = new HttpRequest();
 		phoneInfo = new PhoneInfo(getApplicationContext());
-
+		logObject = new LogToFile(getApplicationContext());
+		logObject.checkExternalMedia();
+		
 		// start the signal strength listener
 		// signalStrengthListener = new SignalStrengthListener();
 		// tm.listen(signalStrengthListener,
@@ -78,12 +81,12 @@ public class MainActivity extends Activity {
 
 				@Override
 				public void run() {
-					updateView(collectData());
+					updateView(collectData() + "\n ");
+					logObject.writeToFile(collectData());
 				}
 			});
 		}
 	}
-
 	/* Called when the application is minimized */// KANSKE VI INTE VILL HA DÅ
 													// VI VILL SAMLA DATA HELA
 													// TIDEN
@@ -138,7 +141,9 @@ public class MainActivity extends Activity {
 	    }    
 	 
 	public void startButton(View view) {
-
+		
+		logObject.writeToSDFile();
+		
 		host = editText.getText().toString();
 
 		httpRequest.setHost(host);
@@ -153,6 +158,8 @@ public class MainActivity extends Activity {
 	}
 
 	public void stopButton(View view) {
+		logObject.closeOutPutStream();
+		
 		myHttpRequestTask.cancel();
 		myHttpRequestTimer.cancel();
 
@@ -172,7 +179,7 @@ public class MainActivity extends Activity {
 
 		String collectedData = "time: " + timeStamp + " IP: " + hostOut
 				+ " ms: " + httpPingOut + " dBm: " + dbm + " cellID: " + cellID
-				+ " NetType: " + netType + "\n ";
+				+ " NetType: " + netType;
 
 		return collectedData;
 	}
