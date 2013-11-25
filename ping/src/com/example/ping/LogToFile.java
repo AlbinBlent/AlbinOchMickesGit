@@ -69,7 +69,6 @@ public class LogToFile {
 		try {
 			fileoutputstream = new FileOutputStream(file);
 			printwriter = new PrintWriter(fileoutputstream);
-			printwriter.println("Test start");
 			
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
@@ -85,7 +84,7 @@ public class LogToFile {
 	public void writeToFile(String message) {
 		
 		
-		printwriter.println(message);
+		printwriter.println(message +"\r\n");
 		// try {
 		// // out.append(message + "\n");
 		// } catch (IOException e) {
@@ -93,7 +92,6 @@ public class LogToFile {
 		// }
 	}
 	public void closeOutPutStream(){
-		printwriter.println("End of test");
 		printwriter.flush();
 		printwriter.close();
 		try {
