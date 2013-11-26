@@ -5,6 +5,8 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import android.content.Context;
 import android.os.Environment;
@@ -15,6 +17,7 @@ public class LogToFile {
 	Context context;
 	PrintWriter printwriter;
 	FileOutputStream fileoutputstream;
+	SimpleDateFormat s = new SimpleDateFormat("yyyy-MM-dd#HH:mm:ss");
 
 	public LogToFile(Context context) {
 		this.context = context;
@@ -62,36 +65,29 @@ public class LogToFile {
 
 		File dir = new File(root.getAbsolutePath() + "/datalog");
 		dir.mkdirs();
-		File file = new File(dir, "myData2.txt");
+		String fileName = "LOGDATA" + s.format(new Date()) + ".csv";
+		File file = new File(dir, fileName);
 
 		String TAG = "LogToFile";
 
 		try {
 			fileoutputstream = new FileOutputStream(file);
 			printwriter = new PrintWriter(fileoutputstream);
-			
+
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 			Log.i(TAG,
 					"******* File not found. Did you"
 							+ " add a WRITE_EXTERNAL_STORAGE permission to the   manifest?");
-		} catch (IOException e) {
-			e.printStackTrace();
 		}
 		System.out.println("\n\nFile written to " + file);
 	}
 
 	public void writeToFile(String message) {
-		
-		
-		printwriter.println(message +"\r\n");
-		// try {
-		// // out.append(message + "\n");
-		// } catch (IOException e) {
-		// e.printStackTrace();
-		// }
+		printwriter.print(message + "\r\n");
 	}
-	public void closeOutPutStream(){
+
+	public void closeOutPutStream() {
 		printwriter.flush();
 		printwriter.close();
 		try {

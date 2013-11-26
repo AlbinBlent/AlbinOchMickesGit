@@ -20,13 +20,17 @@ public class PhoneInfo {
 				SignalStrengthListener.LISTEN_SIGNAL_STRENGTHS);
 
 	}
-	public void pausePhoneInfoListner(){
+
+	public void pausePhoneInfoListner() {
 		tm.listen(signalStrengthListener, PhoneStateListener.LISTEN_NONE);
 	}
-	public void resumePhoneInfoListner(){
-		tm.listen(signalStrengthListener, PhoneStateListener.LISTEN_SIGNAL_STRENGTHS);
+
+	public void resumePhoneInfoListner() {
+		tm.listen(signalStrengthListener,
+				PhoneStateListener.LISTEN_SIGNAL_STRENGTHS);
 	}
-	public int getCID() {
+
+	public String getCID() {
 		try {
 
 			GsmCellLocation location = (GsmCellLocation) tm.getCellLocation();
@@ -37,14 +41,14 @@ public class PhoneInfo {
 			if (locationCellid > 0) { // known location
 				cellId = locationCellid & 0xffff; // get only valuable bytes
 			}
-			return cellId;
+			return Integer.toHexString(cellId);
 		} catch (Exception ignored) {
 		}
 
-		return -1;
+		return "-1";
 	}
 
-	public int getLac() {
+	public String getLac() {
 		try {
 
 			GsmCellLocation location = (GsmCellLocation) tm.getCellLocation();
@@ -55,11 +59,11 @@ public class PhoneInfo {
 			if (locationLac > 0) { // known location
 				lac = locationLac & 0xffff; // get only valuable bytes
 			}
-			return lac;
+			return Integer.toHexString(lac);
 		} catch (Exception ignored) {
 		}
 
-		return -1;
+		return "-1";
 	}
 
 	private class SignalStrengthListener extends PhoneStateListener {
@@ -74,9 +78,45 @@ public class PhoneInfo {
 			super.onSignalStrengthsChanged(signalStrength);
 		}
 	}
-	
-	public int getDBM(){
+
+	public int getDBM() {
 		return dbm;
+	}
+
+	public int getMCC() {
+		String netOperator = tm.getNetworkOperator();
+		int mcc = 0;
+		if (netOperator != null) {
+			mcc = Integer.parseInt(netOperator.substring(0, 3));
+		}
+		return mcc;
+	}
+	public int getMNC() {
+		String netOperator = tm.getNetworkOperator();
+		int mnc = 0;
+		if (netOperator != null) {
+			mnc = Integer.parseInt(netOperator.substring(3));
+		}
+		return mnc;
+	}
+
+	public String getPhoneType() {
+		String phoneType = "";
+		switch (tm.getPhoneType()) {
+		case 0:
+			phoneType = "NONE";
+			break;
+		case 1:
+			phoneType = "2G";
+			break;
+		case 2:
+			phoneType = "3G";
+			break;
+		case 3:
+			phoneType = "SIP";
+			break;
+		}
+		return phoneType;
 	}
 
 	public String getNetType() {

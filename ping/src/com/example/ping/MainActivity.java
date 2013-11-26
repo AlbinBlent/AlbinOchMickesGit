@@ -5,16 +5,12 @@ import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 
-
-
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.telephony.TelephonyManager;
 import android.text.method.ScrollingMovementMethod;
-import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -24,7 +20,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 public class MainActivity extends Activity {
-	SimpleDateFormat s = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+	SimpleDateFormat s = new SimpleDateFormat("yyyy-MM-dd,HH:mm:ss");
 	public final static String EXTRA_MESSAGE = "com.example.ping.MESSAGE";
 
 	String host;
@@ -60,7 +56,7 @@ public class MainActivity extends Activity {
 		phoneInfo = new PhoneInfo(getApplicationContext());
 		logObject = new LogToFile(getApplicationContext());
 		logObject.checkExternalMedia();
-		
+
 		// start the signal strength listener
 		// signalStrengthListener = new SignalStrengthListener();
 		// tm.listen(signalStrengthListener,
@@ -87,63 +83,63 @@ public class MainActivity extends Activity {
 			});
 		}
 	}
+
 	/* Called when the application is minimized */// KANSKE VI INTE VILL HA DÅ
 													// VI VILL SAMLA DATA HELA
 													// TIDEN
 													// @Override
-	 protected void onPause() {			
-	 super.onPause();
-	 phoneInfo.pausePhoneInfoListner();
-	 }
+	protected void onPause() {
+		super.onPause();
+		phoneInfo.pausePhoneInfoListner();
+	}
 
 	/* Called when the application resumes */// KANSKE VI INTE VILL HA DÅ VI
 												// VILL SAMLA DATA HELA TIDEN
 												// @Override
-	 protected void onResume() {												
-	 super.onResume();
-	 phoneInfo.resumePhoneInfoListner();
-	 }
+	protected void onResume() {
+		super.onResume();
+		phoneInfo.resumePhoneInfoListner();
+	}
 
-	 // Initiating Menu XML file (menu.xml)
-	    @Override
-	    public boolean onCreateOptionsMenu(Menu menu)
-	    {
-	        MenuInflater menuInflater = getMenuInflater();
-	        menuInflater.inflate(R.layout.menu, menu);
-	        return true;
-	    }
-	     
-	    /**
-	     * Event Handling for Individual menu item selected
-	     * Identify single menu item by it's id
-	     * */
-	    @Override
-	    public boolean onOptionsItemSelected(MenuItem item)
-	    {
-	         
-	        switch (item.getItemId())
-	        {	        	 
-	        case R.id.menu_settings:
-	        	Intent k = new Intent(MainActivity.this, SettingsActivity.class);
-	        	startActivity(k);
-	            Toast.makeText(MainActivity.this, "Settings is Selected", Toast.LENGTH_SHORT).show();
-	            return true;
-	            
-	        case R.id.menu_help:
-//	        	Intent k = new Intent(MainActivity.this, SettingsActivity.class);
-//	        	startActivity(k);
-	            Toast.makeText(MainActivity.this, "Help is Selected", Toast.LENGTH_SHORT).show();
-	            return true;
-	 
-	        default:
-	            return super.onOptionsItemSelected(item);
-	        }
-	    }    
-	 
+	// Initiating Menu XML file (menu.xml)
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		MenuInflater menuInflater = getMenuInflater();
+		menuInflater.inflate(R.layout.menu, menu);
+		return true;
+	}
+
+	/**
+	 * Event Handling for Individual menu item selected Identify single menu
+	 * item by it's id
+	 * */
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+
+		switch (item.getItemId()) {
+		case R.id.menu_settings:
+			Intent k = new Intent(MainActivity.this, SettingsActivity.class);
+			startActivity(k);
+			Toast.makeText(MainActivity.this, "Settings is Selected",
+					Toast.LENGTH_SHORT).show();
+			return true;
+
+		case R.id.menu_help:
+			// Intent k = new Intent(MainActivity.this, SettingsActivity.class);
+			// startActivity(k);
+			Toast.makeText(MainActivity.this, "Help is Selected",
+					Toast.LENGTH_SHORT).show();
+			return true;
+
+		default:
+			return super.onOptionsItemSelected(item);
+		}
+	}
+
 	public void startButton(View view) {
-		
+
 		logObject.writeToSDFile();
-		
+
 		host = editText.getText().toString();
 
 		httpRequest.setHost(host);
@@ -159,7 +155,7 @@ public class MainActivity extends Activity {
 
 	public void stopButton(View view) {
 		logObject.closeOutPutStream();
-		
+
 		myHttpRequestTask.cancel();
 		myHttpRequestTimer.cancel();
 
@@ -173,13 +169,16 @@ public class MainActivity extends Activity {
 		String hostOut = host;
 		String httpPingOut = httpPing;
 		int dbm = phoneInfo.getDBM();
-		// String cellID = Integer.toHexString(phoneInfo.getCID());
-		int cellID = phoneInfo.getCID();
+		String cellID = phoneInfo.getCID();
+		String lac = phoneInfo.getLac();
+		String phoneType = phoneInfo.getPhoneType();
 		String netType = phoneInfo.getNetType();
+		int mcc = phoneInfo.getMCC();
+		int mnc = phoneInfo.getMNC();
 
-		String collectedData = "time: " + timeStamp + " IP: " + hostOut
-				+ " ms: " + httpPingOut + " dBm: " + dbm + " cellID: " + cellID
-				+ " NetType: " + netType;
+		String collectedData = timeStamp + "," + phoneType + "," + dbm + ","
+				+ mcc + "," + mnc + "," + lac + "," + cellID + "," + netType
+				+ "," + httpPingOut + "," + hostOut;
 
 		return collectedData;
 	}
