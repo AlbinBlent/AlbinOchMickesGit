@@ -65,7 +65,7 @@ public class LogToFile {
 
 		File dir = new File(root.getAbsolutePath() + "/datalog");
 		dir.mkdirs();
-		String fileName = "LOGDATA" + s.format(new Date()) + ".csv";
+		String fileName = s.format(new Date()) + "#PhoneDataLog.csv";
 		File file = new File(dir, fileName);
 
 		String TAG = "LogToFile";
@@ -73,6 +73,7 @@ public class LogToFile {
 		try {
 			fileoutputstream = new FileOutputStream(file);
 			printwriter = new PrintWriter(fileoutputstream);
+			printwriter.print("date,time,phoneType,dBm,mcc,mnc,lac,cellID,netType,responeTime,host" + "\r\n");
 
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();

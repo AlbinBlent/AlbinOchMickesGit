@@ -8,7 +8,10 @@ import java.util.TimerTask;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
+import android.renderscript.Sampler.Value;
 import android.telephony.TelephonyManager;
 import android.text.method.ScrollingMovementMethod;
 import android.view.Menu;
@@ -138,18 +141,39 @@ public class MainActivity extends Activity {
 
 	public void startButton(View view) {
 
+		/*
+		 * Initiate the logger.
+		 */
 		logObject.writeToSDFile();
 
-		host = editText.getText().toString();
+		/*
+		 * Get the preference values from the settings menu.
+		 */
+		SharedPreferences sharedPref = PreferenceManager
+				.getDefaultSharedPreferences(this);
+		String httpAddress = sharedPref.getString("httpAddress", "");
 
-		httpRequest.setHost(host);
+		/*
+		 * This type cast is very poor but it was way easier than changing the
+		 * type of the persistent variable in the NumberPreference class.
+		 */
+		String sampleIntervalString = sharedPref
+				.getString("sampleInterval", "");
+		int sampleIntervalInt = Integer.valueOf(sampleIntervalString);
+		sampleIntervalInt = sampleIntervalInt * 1000;
+		long sampleIntervalLong = Long.valueOf(sampleIntervalInt);
+
+		/*
+		 * Set the host and kick off the tasks.
+		 */
+		httpRequest.setHost(httpAddress);
 		myHttpRequestTask = new MyHttpRequestTask();
 		myHttpRequestTimer = new Timer();
 		myHttpRequestTimer.schedule(myHttpRequestTask, 0, 50);
 
 		myCollectorTask = new MyTimerTask();
 		myCollectorTimer = new Timer();
-		myCollectorTimer.schedule(myCollectorTask, 0, interval);
+		myCollectorTimer.schedule(myCollectorTask, 0, sampleIntervalLong);
 
 	}
 
