@@ -43,9 +43,9 @@ public class NumberPreference extends DialogPreference {
         String[] nums = new String[21];
         
         for(int i=0; i<nums.length; i++)
-           nums[i] = Integer.toString(i);
+           nums[i] = Integer.toString(i+1);
         numberPicker.setMaxValue(nums.length-1);
-        numberPicker.setMinValue(0);
+        numberPicker.setMinValue(1);
         numberPicker.setValue(lastValue);
         numberPicker.setDisplayedValues(nums);
     }

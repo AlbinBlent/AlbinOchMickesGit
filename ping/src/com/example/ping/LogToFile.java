@@ -78,8 +78,7 @@ public class LogToFile {
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 			Log.i(TAG,
-					"******* File not found. Did you"
-							+ " add a WRITE_EXTERNAL_STORAGE permission to the   manifest?");
+					"******* File not found. Did you");
 		}
 		System.out.println("\n\nFile written to " + file);
 	}

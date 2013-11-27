@@ -26,32 +26,29 @@ public class MainActivity extends Activity {
 	SimpleDateFormat s = new SimpleDateFormat("yyyy-MM-dd,HH:mm:ss");
 	public final static String EXTRA_MESSAGE = "com.example.ping.MESSAGE";
 
-	String host;
-
-	// SignalStrengthListener signalStrengthListener;
 	TelephonyManager tm;
 
+	String httpAddress;
 	String httpPing;
-	int dbm;
-	int interval;
-	EditText editText;
 	MyTimerTask myCollectorTask;
 	MyHttpRequestTask myHttpRequestTask;
 	Timer myCollectorTimer;
 	Timer myHttpRequestTimer;
 	TextView textView1;
+	TextView textView2;
 	HttpRequest httpRequest;
 	PhoneInfo phoneInfo;
 	LogToFile logObject;
+	boolean isStarted;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-		editText = (EditText) findViewById(R.id.ping_adress);
-		interval = 1000;
 		textView1 = (TextView) findViewById(R.id.textView1);
+		textView2 = (TextView) findViewById(R.id.textView2);
+		isStarted = false;
 
 		tm = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
 
@@ -59,12 +56,6 @@ public class MainActivity extends Activity {
 		phoneInfo = new PhoneInfo(getApplicationContext());
 		logObject = new LogToFile(getApplicationContext());
 		logObject.checkExternalMedia();
-
-		// start the signal strength listener
-		// signalStrengthListener = new SignalStrengthListener();
-		// tm.listen(signalStrengthListener,
-		// SignalStrengthListener.LISTEN_SIGNAL_STRENGTHS);
-
 	}
 
 	class MyHttpRequestTask extends TimerTask {
@@ -121,15 +112,17 @@ public class MainActivity extends Activity {
 
 		switch (item.getItemId()) {
 		case R.id.menu_settings:
-			Intent k = new Intent(MainActivity.this, SettingsActivity.class);
-			startActivity(k);
+			Intent settingsActivityIntent = new Intent(MainActivity.this,
+					SettingsActivity.class);
+			startActivity(settingsActivityIntent);
 			Toast.makeText(MainActivity.this, "Settings is Selected",
 					Toast.LENGTH_SHORT).show();
 			return true;
 
 		case R.id.menu_help:
-			// Intent k = new Intent(MainActivity.this, SettingsActivity.class);
-			// startActivity(k);
+			Intent helpActivityIntent = new Intent(MainActivity.this,
+					HelpActivity.class);
+			startActivity(helpActivityIntent);
 			Toast.makeText(MainActivity.this, "Help is Selected",
 					Toast.LENGTH_SHORT).show();
 			return true;
@@ -141,6 +134,16 @@ public class MainActivity extends Activity {
 
 	public void startButton(View view) {
 
+		if (isStarted) {
+			Toast.makeText(MainActivity.this, "Allready running",
+					Toast.LENGTH_SHORT).show();
+			return;
+		}
+		isStarted = true;
+		Toast.makeText(MainActivity.this, "Start", Toast.LENGTH_SHORT).show();
+
+		textView2.setTextColor(getResources().getColor(R.color.green));
+
 		/*
 		 * Initiate the logger.
 		 */
@@ -151,7 +154,7 @@ public class MainActivity extends Activity {
 		 */
 		SharedPreferences sharedPref = PreferenceManager
 				.getDefaultSharedPreferences(this);
-		String httpAddress = sharedPref.getString("httpAddress", "");
+		httpAddress = sharedPref.getString("httpAddress", "");
 
 		/*
 		 * This type cast is very poor but it was way easier than changing the
@@ -178,6 +181,11 @@ public class MainActivity extends Activity {
 	}
 
 	public void stopButton(View view) {
+		if (!isStarted) {
+			return;
+		}
+		isStarted = false;
+		Toast.makeText(MainActivity.this, "Stop", Toast.LENGTH_SHORT).show();
 		logObject.closeOutPutStream();
 
 		myHttpRequestTask.cancel();
@@ -190,7 +198,7 @@ public class MainActivity extends Activity {
 	public String collectData() {
 
 		String timeStamp = s.format(new Date());
-		String hostOut = host;
+		String hostOut = httpAddress;
 		String httpPingOut = httpPing;
 		int dbm = phoneInfo.getDBM();
 		String cellID = phoneInfo.getCID();
@@ -208,8 +216,18 @@ public class MainActivity extends Activity {
 	}
 
 	public void updateView(String out) {
-		String oldText = textView1.getText().toString();
+		// String oldText = textView1.getText().toString();
+
 		textView1.setMovementMethod(new ScrollingMovementMethod());
-		textView1.setText(out + oldText);
+		// textView1.setText("Time,Phone type,dBm,MCC,MNC,Lac,cellID,net type,http ping,http address \n"
+		// + out + oldText);
+		String[] splitString = out.split(",", 11);
+		textView1.setText("Date: " + splitString[0] + "\n" + "Time:" + splitString[1] + "\n"
+				+ "Phone type: " + splitString[2] + "\n" + "dBm: " + splitString[3] + "\n"
+				+ "MCC: " + splitString[4] + "\n" + "MNC: " + splitString[5] + "\n"
+				+ "Lac: " + splitString[6] + "\n" + "cellID: " + splitString[7] + "\n"
+				+ "Net type: " + splitString[8] + "\n" + "http ping: " + splitString[9] + "\n"
+				+ "http address: " + splitString[10] + "\n");
+
 	}
 }

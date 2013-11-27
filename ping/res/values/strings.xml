@@ -9,6 +9,6 @@
     <string name="textBoxHint">192.168.1.1</string>
     <string name="title_activity_display_message">My Message</string>
     <string name="preFilledIpAddress">http://www.aftonbladet.se</string>
-    
+    <string name="title_activity_help">Help</string>
 
 </resources>
