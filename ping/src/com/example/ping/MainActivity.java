@@ -154,14 +154,14 @@ public class MainActivity extends Activity {
 		 */
 		SharedPreferences sharedPref = PreferenceManager
 				.getDefaultSharedPreferences(this);
-		httpAddress = sharedPref.getString("httpAddress", "");
+		httpAddress = sharedPref.getString("httpAddress", "http://dn.se");
 
 		/*
 		 * This type cast is very poor but it was way easier than changing the
 		 * type of the persistent variable in the NumberPreference class.
 		 */
 		String sampleIntervalString = sharedPref
-				.getString("sampleInterval", "");
+				.getString("sampleInterval", "1");
 		int sampleIntervalInt = Integer.valueOf(sampleIntervalString);
 		sampleIntervalInt = sampleIntervalInt * 1000;
 		long sampleIntervalLong = Long.valueOf(sampleIntervalInt);
@@ -222,12 +222,14 @@ public class MainActivity extends Activity {
 		// textView1.setText("Time,Phone type,dBm,MCC,MNC,Lac,cellID,net type,http ping,http address \n"
 		// + out + oldText);
 		String[] splitString = out.split(",", 11);
-		textView1.setText("Date: " + splitString[0] + "\n" + "Time:" + splitString[1] + "\n"
-				+ "Phone type: " + splitString[2] + "\n" + "dBm: " + splitString[3] + "\n"
-				+ "MCC: " + splitString[4] + "\n" + "MNC: " + splitString[5] + "\n"
-				+ "Lac: " + splitString[6] + "\n" + "cellID: " + splitString[7] + "\n"
-				+ "Net type: " + splitString[8] + "\n" + "http ping: " + splitString[9] + "\n"
-				+ "http address: " + splitString[10] + "\n");
+		textView1.setText("Date: " + splitString[0] + "\n" + "Time:"
+				+ splitString[1] + "\n" + "Phone type: " + splitString[2]
+				+ "\n" + "dBm: " + splitString[3] + "\n" + "MCC: "
+				+ splitString[4] + "\n" + "MNC: " + splitString[5] + "\n"
+				+ "Lac: " + splitString[6] + "\n" + "cellID: " + splitString[7]
+				+ "\n" + "Net type: " + splitString[8] + "\n" + "http ping: "
+				+ splitString[9] + "\n" + "http address: " + splitString[10]
+				+ "\n");
 
 	}
 }

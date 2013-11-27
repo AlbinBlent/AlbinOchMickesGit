@@ -30,11 +30,12 @@
             android:text="@string/button_stop" />
     </LinearLayout>
 
-    <RelativeLayout
+    <LinearLayout
         android:id="@+id/LinearLayout02"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/LinearLayout01" >"
+        android:layout_below="@+id/LinearLayout01" 
+        android:orientation="vertical" >
 
         <TextView
             android:id="@+id/textView2"
@@ -51,9 +52,8 @@
             android:id="@+id/textView1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/textView2"
             android:layout_weight="3"
-            android:ems="10" />
-    </RelativeLayout>
+            android:ems="10"  />
+    </LinearLayout>
 
 </RelativeLayout>

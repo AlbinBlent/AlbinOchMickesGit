@@ -10,7 +10,7 @@ import android.widget.NumberPicker;
 import android.widget.TimePicker;
 
 public class NumberPreference extends DialogPreference {
-    private int lastValue=0;
+    private int lastValue=1;
     private NumberPicker numberPicker = null;
     
     
