@@ -7,7 +7,6 @@ import android.preference.DialogPreference;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.NumberPicker;
-import android.widget.TimePicker;
 
 public class NumberPreference extends DialogPreference {
     private int lastValue=1;
@@ -78,7 +77,7 @@ public class NumberPreference extends DialogPreference {
 
         if (restoreValue) {
             if (defaultValue==null) {
-            	value=getPersistedString("00:00");
+            	value=getPersistedString("1");
             }
             else {
                 value=getPersistedString(defaultValue.toString());

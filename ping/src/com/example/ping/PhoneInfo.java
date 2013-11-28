@@ -4,12 +4,14 @@ import android.content.Context;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.telephony.gsm.GsmCellLocation;
+import android.util.Log;
 
 public class PhoneInfo {
 	TelephonyManager tm;
 	SignalStrengthListener signalStrengthListener;
 	int dbm;
 	Context ctx;
+	String TAG = "PhoneInfo";
 
 	public PhoneInfo(Context ctx) {
 		this.ctx = ctx;
@@ -87,36 +89,26 @@ public class PhoneInfo {
 		String netOperator = tm.getNetworkOperator();
 		int mcc = 0;
 		if (netOperator != null) {
-			mcc = Integer.parseInt(netOperator.substring(0, 3));
+			try {
+				mcc = Integer.parseInt(netOperator.substring(0, 3));
+			} catch (Exception IndexOutOfBoundsException) {
+				Log.i(TAG, "Could not get mcc");
+			}
 		}
 		return mcc;
 	}
+
 	public int getMNC() {
 		String netOperator = tm.getNetworkOperator();
 		int mnc = 0;
 		if (netOperator != null) {
-			mnc = Integer.parseInt(netOperator.substring(3));
+			try {
+				mnc = Integer.parseInt(netOperator.substring(3));
+			} catch (Exception IndexOutOfBoundsException) {
+				Log.i(TAG, "Could not get mcc");
+			}
 		}
 		return mnc;
-	}
-
-	public String getPhoneType() {
-		String phoneType = "";
-		switch (tm.getPhoneType()) {
-		case 0:
-			phoneType = "NONE";
-			break;
-		case 1:
-			phoneType = "2G";
-			break;
-		case 2:
-			phoneType = "3G";
-			break;
-		case 3:
-			phoneType = "SIP";
-			break;
-		}
-		return phoneType;
 	}
 
 	public String getNetType() {

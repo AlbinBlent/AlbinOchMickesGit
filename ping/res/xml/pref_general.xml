@@ -13,9 +13,10 @@
         android:title="@string/pref_title_httpAddress_name" />
 
     <com.example.ping.NumberPreference
+        android:defaultValue="@string/pref_sample_interval"
         android:id="@+id/np"
         android:key="sampleInterval"
-        android:title="@string/pref_sample_interval" />
+        android:title="@string/pref_title_sample_interval" />
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:width="100dip" />

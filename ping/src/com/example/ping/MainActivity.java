@@ -143,6 +143,7 @@ public class MainActivity extends Activity {
 		Toast.makeText(MainActivity.this, "Start", Toast.LENGTH_SHORT).show();
 
 		textView2.setTextColor(getResources().getColor(R.color.green));
+		textView2.setText("Running...");
 
 		/*
 		 * Initiate the logger.
@@ -160,8 +161,8 @@ public class MainActivity extends Activity {
 		 * This type cast is very poor but it was way easier than changing the
 		 * type of the persistent variable in the NumberPreference class.
 		 */
-		String sampleIntervalString = sharedPref
-				.getString("sampleInterval", "1");
+		String sampleIntervalString = sharedPref.getString("sampleInterval",
+				"1");
 		int sampleIntervalInt = Integer.valueOf(sampleIntervalString);
 		sampleIntervalInt = sampleIntervalInt * 1000;
 		long sampleIntervalLong = Long.valueOf(sampleIntervalInt);
@@ -187,6 +188,8 @@ public class MainActivity extends Activity {
 		isStarted = false;
 		Toast.makeText(MainActivity.this, "Stop", Toast.LENGTH_SHORT).show();
 		logObject.closeOutPutStream();
+		textView2.setTextColor(getResources().getColor(R.color.red));
+		textView2.setText("Stopped");
 
 		myHttpRequestTask.cancel();
 		myHttpRequestTimer.cancel();
@@ -203,33 +206,27 @@ public class MainActivity extends Activity {
 		int dbm = phoneInfo.getDBM();
 		String cellID = phoneInfo.getCID();
 		String lac = phoneInfo.getLac();
-		String phoneType = phoneInfo.getPhoneType();
 		String netType = phoneInfo.getNetType();
 		int mcc = phoneInfo.getMCC();
 		int mnc = phoneInfo.getMNC();
 
-		String collectedData = timeStamp + "," + phoneType + "," + dbm + ","
-				+ mcc + "," + mnc + "," + lac + "," + cellID + "," + netType
-				+ "," + httpPingOut + "," + hostOut;
+		String collectedData = timeStamp + "," + dbm + "," + mcc + "," + mnc
+				+ "," + lac + "," + cellID + "," + netType + "," + httpPingOut
+				+ "," + hostOut;
 
 		return collectedData;
 	}
 
 	public void updateView(String out) {
-		// String oldText = textView1.getText().toString();
-
 		textView1.setMovementMethod(new ScrollingMovementMethod());
-		// textView1.setText("Time,Phone type,dBm,MCC,MNC,Lac,cellID,net type,http ping,http address \n"
-		// + out + oldText);
-		String[] splitString = out.split(",", 11);
+		String[] splitString = out.split(",", 10);
 		textView1.setText("Date: " + splitString[0] + "\n" + "Time:"
-				+ splitString[1] + "\n" + "Phone type: " + splitString[2]
-				+ "\n" + "dBm: " + splitString[3] + "\n" + "MCC: "
-				+ splitString[4] + "\n" + "MNC: " + splitString[5] + "\n"
-				+ "Lac: " + splitString[6] + "\n" + "cellID: " + splitString[7]
-				+ "\n" + "Net type: " + splitString[8] + "\n" + "http ping: "
-				+ splitString[9] + "\n" + "http address: " + splitString[10]
-				+ "\n");
+				+ splitString[1] + "\n" + "dBm: " + splitString[2] + "\n"
+				+ "MCC: " + splitString[3] + "\n" + "MNC: " + splitString[4]
+				+ "\n" + "Lac: " + splitString[5] + "\n" + "cellID: "
+				+ splitString[6] + "\n" + "Net type: " + splitString[7] + "\n"
+				+ "http ping: " + splitString[8] + "\n" + "http address: "
+				+ splitString[9] + "\n");
 
 	}
 }

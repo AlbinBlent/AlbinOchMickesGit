@@ -43,7 +43,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:ems="10"
-            android:text="test"
+            android:text="Ready"
             android:textColor="#000000"
             android:textSize="20sp" >
         </TextView>
