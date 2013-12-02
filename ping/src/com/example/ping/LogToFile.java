@@ -17,7 +17,7 @@ public class LogToFile {
 	Context context;
 	PrintWriter printwriter;
 	FileOutputStream fileoutputstream;
-	SimpleDateFormat s = new SimpleDateFormat("yyyy-MM-dd#HH:mm:ss");
+	SimpleDateFormat s = new SimpleDateFormat("yyyy-MM-dd#HH-mm-ss");
 
 	FileOutputStream outputStreamSecondFkn;
 
