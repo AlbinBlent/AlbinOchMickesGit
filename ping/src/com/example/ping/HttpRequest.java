@@ -11,6 +11,8 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 
+import android.widget.Toast;
+
 public class HttpRequest {
 	
 	String host;
@@ -50,7 +52,7 @@ public class HttpRequest {
 
 		return pingTime;
 	}
-	public void setHost(String host){
+	public void setHost(String host){		
 		this.host = host;
 		
 	}

@@ -139,6 +139,18 @@ public class MainActivity extends Activity {
 					Toast.LENGTH_SHORT).show();
 			return;
 		}
+		/*
+		 * Get the preference values from the settings menu.
+		 */
+		SharedPreferences sharedPref = PreferenceManager
+				.getDefaultSharedPreferences(this);
+		httpAddress = sharedPref.getString("httpAddress", "http://dn.se");
+		if(!httpAddress.startsWith("http://www.")){
+			Toast.makeText(MainActivity.this, "Invalid internet address \nSet new in Settings -> Http Address", Toast.LENGTH_LONG).show();
+			return;
+		}
+		
+		
 		isStarted = true;
 		Toast.makeText(MainActivity.this, "Start", Toast.LENGTH_SHORT).show();
 
@@ -149,13 +161,7 @@ public class MainActivity extends Activity {
 		 * Initiate the logger.
 		 */
 		logObject.writeToSDFile();
-
-		/*
-		 * Get the preference values from the settings menu.
-		 */
-		SharedPreferences sharedPref = PreferenceManager
-				.getDefaultSharedPreferences(this);
-		httpAddress = sharedPref.getString("httpAddress", "http://dn.se");
+		
 
 		/*
 		 * This type cast is very poor but it was way easier than changing the
@@ -220,13 +226,14 @@ public class MainActivity extends Activity {
 	public void updateView(String out) {
 		textView1.setMovementMethod(new ScrollingMovementMethod());
 		String[] splitString = out.split(",", 10);
+		String hostname = splitString[9].substring(7);
 		textView1.setText("Date: " + splitString[0] + "\n" + "Time:"
 				+ splitString[1] + "\n" + "dBm: " + splitString[2] + "\n"
 				+ "MCC: " + splitString[3] + "\n" + "MNC: " + splitString[4]
 				+ "\n" + "Lac: " + splitString[5] + "\n" + "cellID: "
 				+ splitString[6] + "\n" + "Net type: " + splitString[7] + "\n"
 				+ "http ping: " + splitString[8] + "\n" + "http address: "
-				+ splitString[9] + "\n");
+				+ hostname + "\n");
 
 	}
 }
