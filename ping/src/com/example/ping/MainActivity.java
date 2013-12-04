@@ -40,6 +40,7 @@ public class MainActivity extends Activity {
 	PhoneInfo phoneInfo;
 	LogToFile logObject;
 	boolean isStarted;
+	boolean pingIsDone;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -49,6 +50,7 @@ public class MainActivity extends Activity {
 		textView1 = (TextView) findViewById(R.id.textView1);
 		textView2 = (TextView) findViewById(R.id.textView2);
 		isStarted = false;
+		pingIsDone = true;
 
 		tm = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
 
@@ -60,8 +62,13 @@ public class MainActivity extends Activity {
 
 	class MyHttpRequestTask extends TimerTask {
 		public void run() {
-
-			httpPing = String.valueOf(httpRequest.getHttpResponseTime());
+			if (pingIsDone) {
+				pingIsDone = false;
+				httpPing = String.valueOf(httpRequest.getHttpResponseTime());
+				pingIsDone = true;
+			} else {
+				httpPing = "null";
+			}
 		}
 	}
 
@@ -144,13 +151,15 @@ public class MainActivity extends Activity {
 		 */
 		SharedPreferences sharedPref = PreferenceManager
 				.getDefaultSharedPreferences(this);
-		httpAddress = sharedPref.getString("httpAddress", "http://dn.se");
-		if(!httpAddress.startsWith("http://www.")){
-			Toast.makeText(MainActivity.this, "Invalid internet address \nSet new in Settings -> Http Address", Toast.LENGTH_LONG).show();
+		httpAddress = sharedPref.getString("httpAddress", "http://httpbin.org/status/200");
+		if (!httpAddress.startsWith("http://")) {
+			Toast.makeText(
+					MainActivity.this,
+					"Invalid internet address \nSet new in Settings -> Http Address",
+					Toast.LENGTH_LONG).show();
 			return;
 		}
-		
-		
+
 		isStarted = true;
 		Toast.makeText(MainActivity.this, "Start", Toast.LENGTH_SHORT).show();
 
@@ -161,7 +170,6 @@ public class MainActivity extends Activity {
 		 * Initiate the logger.
 		 */
 		logObject.writeToSDFile();
-		
 
 		/*
 		 * This type cast is very poor but it was way easier than changing the
@@ -179,7 +187,7 @@ public class MainActivity extends Activity {
 		httpRequest.setHost(httpAddress);
 		myHttpRequestTask = new MyHttpRequestTask();
 		myHttpRequestTimer = new Timer();
-		myHttpRequestTimer.schedule(myHttpRequestTask, 0, 50);
+		myHttpRequestTimer.schedule(myHttpRequestTask, 0, sampleIntervalLong);
 
 		myCollectorTask = new MyTimerTask();
 		myCollectorTimer = new Timer();

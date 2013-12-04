@@ -9,7 +9,7 @@
     <string name="pref_header_general">General</string>
     <string name="pref_title_httpAddress_name">Http Address</string>
     <string name="pref_title_sample_interval">Sample interval (seconds)</string>
-    <string name="pref_httpAddress">http://www.dn.se</string>
+    <string name="pref_httpAddress">http://httpbin.org/status/200</string>
     <string name="pref_sample_interval">1</string>
 
 </resources>

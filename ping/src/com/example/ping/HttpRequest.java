@@ -1,59 +1,58 @@
 package com.example.ping;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
-import org.apache.http.StatusLine;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
-
-import android.widget.Toast;
+import android.util.Log;
 
 public class HttpRequest {
-	
+
 	String host;
 
 	public long getHttpResponseTime() {
-		HttpClient httpclient = new DefaultHttpClient();
-
-		HttpResponse response;
-		String responseString = null;
 		long pingTime = 0;
 
-		final long startTime = System.currentTimeMillis();
 		try {
-			response = httpclient.execute(new HttpGet(host));
-			StatusLine statusLine = response.getStatusLine();
 
-			if (statusLine.getStatusCode() == HttpStatus.SC_OK) {
-				ByteArrayOutputStream out = new ByteArrayOutputStream();
-				response.getEntity().writeTo(out);
-				out.close();
-				responseString = out.toString();
+			final long startTime = System.currentTimeMillis();
+			URL url = new URL(host);
 
+			HttpURLConnection urlc = (HttpURLConnection) url.openConnection();
+			urlc.setRequestMethod("GET");
+			
+			urlc.setConnectTimeout(1000 * 30); // mTimeout is in seconds
+			urlc.connect();
+			
+			if (urlc.getResponseCode() == 200) {
+				Log.i("connect", "getResponseCode == 200");
 				final long endTime = System.currentTimeMillis();
 				pingTime = endTime - startTime;
-				System.out.println("http: " + pingTime);
-
+				urlc.disconnect();
+				
 			} else {
-				// Closes the connection.
-				response.getEntity().getContent().close();
-				throw new IOException(statusLine.getReasonPhrase());
+				System.out.println(urlc.getResponseCode());
+
+				System.out.println(urlc.getResponseMessage());
+				final long endTime = System.currentTimeMillis();
+				pingTime = endTime - startTime;
+				urlc.disconnect();
+				
 			}
-		} catch (ClientProtocolException e) {
-			// TODO Handle problems..
+		} catch (MalformedURLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
 		} catch (IOException e) {
-			// TODO Handle problems..
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 
 		return pingTime;
 	}
-	public void setHost(String host){		
+
+	public void setHost(String host) {
 		this.host = host;
-		
+
 	}
 }

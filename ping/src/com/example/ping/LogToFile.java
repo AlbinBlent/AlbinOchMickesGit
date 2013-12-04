@@ -71,17 +71,6 @@ public class LogToFile {
 		String fileName = s.format(new Date()) + "#PhoneDataLog.csv";
 		File file = new File(dir, fileName);
 
-		// if(!file.exists()){ För att använda internal storage
-		// String filename = "myfile";
-		//
-		// try {
-		// outputStreamSecondFkn = context.openFileOutput(filename,
-		// Context.MODE_PRIVATE);
-		// } catch (Exception e) {
-		// e.printStackTrace();
-		// }
-		// }
-
 		System.out.println("File: " + file);
 
 		String TAG = "LogToFile";
@@ -89,9 +78,6 @@ public class LogToFile {
 		try {
 			fileoutputstream = new FileOutputStream(file);
 			printwriter = new PrintWriter(fileoutputstream);
-			printwriter
-					.print("date,time,phoneType,dBm,mcc,mnc,lac,cellID,netType,responeTime,host"
-							+ "\r\n");
 
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
@@ -103,12 +89,6 @@ public class LogToFile {
 	public void writeToFile(String message) {
 		printwriter.print(message + "\r\n");
 
-		// try { För att använda internal storage
-		// outputStreamSecondFkn.write(message.getBytes());
-		// } catch (IOException e) {
-		// // TODO Auto-generated catch block
-		// e.printStackTrace();
-		// }
 	}
 
 	public void closeOutPutStream() {

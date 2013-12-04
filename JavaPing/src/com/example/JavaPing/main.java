@@ -1,24 +1,17 @@
 package com.example.JavaPing;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
-import org.apache.http.StatusLine;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
-
-@SuppressWarnings("deprecation")
 public class main {
 
 	static String host;
@@ -28,9 +21,9 @@ public class main {
 	static PrintWriter writer;
 	static SimpleDateFormat s = new SimpleDateFormat("yyyy-MM-dd#HH-mm-ss");
 
-	public static void main(String[] args) {		
+	public static void main(String[] args) {
 
-		host = "http://dn.se";
+		host = "http://httpbin.org/status/200";
 		sampleIntervalLong = 1000;
 		String dir = "U:\\datalog\\";
 
@@ -38,10 +31,8 @@ public class main {
 		myCollectorTimer = new Timer();
 		myCollectorTimer.schedule(myCollectorTask, 0, sampleIntervalLong);
 
-		// myCollectorTask.cancel();
-		// myCollectorTimer.cancel();
 		String fileName = s.format(new Date()) + "#TemPing.csv";
-//		fileName = "hej.csv";
+
 		File file = new File(dir + fileName);
 		file.getParentFile().mkdirs();
 		try {
@@ -50,8 +41,6 @@ public class main {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-//		writer.println("date,time,responeTime,host");
-		System.out.println("date,time,responeTime,host");
 	}
 
 	public static class MyTimerTask extends TimerTask { // FIXA SKIRIV TILL FIL
@@ -66,40 +55,33 @@ public class main {
 		}
 	}
 
-	@SuppressWarnings("unused")
 	public static long getHttpResponseTime(String host) {
-		@SuppressWarnings("resource")
-		HttpClient httpclient = new DefaultHttpClient();
-
-		HttpResponse response;
-		String responseString = null;
 		long pingTime = 0;
 
-		final long startTime = System.currentTimeMillis();
 		try {
-			response = httpclient.execute(new HttpGet(host));
-			StatusLine statusLine = response.getStatusLine();
 
-			if (statusLine.getStatusCode() == HttpStatus.SC_OK) {
-				ByteArrayOutputStream out = new ByteArrayOutputStream();
-				response.getEntity().writeTo(out);
-				out.close();
-				responseString = out.toString();
+			
+			URL url = new URL(host);
 
-				final long endTime = System.currentTimeMillis();
-				pingTime = endTime - startTime;
+			HttpURLConnection urlc = (HttpURLConnection) url.openConnection();
+			urlc.setRequestMethod("GET");
 
-			} else {
-				// Closes the connection.
-				response.getEntity().getContent().close();
-				throw new IOException(statusLine.getReasonPhrase());
-			}
-		} catch (ClientProtocolException e) {
-			// TODO Handle problems..
+			urlc.setConnectTimeout(1000 * 30); // mTimeout is in seconds
+			final long startTime = System.currentTimeMillis();
+			urlc.connect();
+
+			System.out.println(urlc.getResponseCode());
+			final long endTime = System.currentTimeMillis();
+			pingTime = endTime - startTime;
+			urlc.disconnect();
+
+		} catch (MalformedURLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
 		} catch (IOException e) {
-			// TODO Handle problems..
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-
 		return pingTime;
 	}
 }
