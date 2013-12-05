@@ -10,6 +10,7 @@ import android.util.Log;
 public class HttpRequest {
 
 	String host;
+	String responseCode = "";
 
 	public long getHttpResponseTime() {
 		long pingTime = 0;
@@ -24,27 +25,24 @@ public class HttpRequest {
 			
 			urlc.setConnectTimeout(1000 * 30); // mTimeout is in seconds
 			urlc.connect();
-			
-			if (urlc.getResponseCode() == 200) {
-				Log.i("connect", "getResponseCode == 200");
+			int response = urlc.getResponseCode();
+			responseCode = String.valueOf(response);
+			if (response == 200) {
+				Log.i("HttpRequest", "getResponseCode == " + responseCode);
 				final long endTime = System.currentTimeMillis();
 				pingTime = endTime - startTime;
 				urlc.disconnect();
 				
 			} else {
-				System.out.println(urlc.getResponseCode());
-
-				System.out.println(urlc.getResponseMessage());
-				final long endTime = System.currentTimeMillis();
-				pingTime = endTime - startTime;
-				urlc.disconnect();
+				Log.i("HttpRequest", "getResponseCode == " + responseCode);
+					urlc.disconnect();
 				
 			}
 		} catch (MalformedURLException e1) {
-			// TODO Auto-generated catch block
+			responseCode = "Malformed URL Exception";
 			e1.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			responseCode = "IO Exception";
 			e.printStackTrace();
 		}
 
@@ -54,5 +52,8 @@ public class HttpRequest {
 	public void setHost(String host) {
 		this.host = host;
 
+	}
+	public String getResponseCode(){
+		return String.valueOf(responseCode);
 	}
 }

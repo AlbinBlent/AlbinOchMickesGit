@@ -238,10 +238,10 @@ public class MainActivity extends Activity {
 		textView1.setText("Date: " + splitString[0] + "\n" + "Time:"
 				+ splitString[1] + "\n" + "dBm: " + splitString[2] + "\n"
 				+ "MCC: " + splitString[3] + "\n" + "MNC: " + splitString[4]
-				+ "\n" + "Lac: " + splitString[5] + "\n" + "cellID: "
-				+ splitString[6] + "\n" + "Net type: " + splitString[7] + "\n"
-				+ "http ping: " + splitString[8] + "\n" + "http address: "
-				+ hostname + "\n");
+				+ "\n" + "Lac: " + splitString[5] + "\n" + "CellID: "
+				+ splitString[6] + "\n" + "Net Type: " + splitString[7] + "\n"
+				+ "Http Ping: " + splitString[8] + "\n" + "Http Address: "
+				+ hostname + "\n" + "Response Code: " + httpRequest.getResponseCode());
 
 	}
 }

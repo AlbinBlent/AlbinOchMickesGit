@@ -20,6 +20,7 @@ public class main {
 	static Timer myCollectorTimer;
 	static PrintWriter writer;
 	static SimpleDateFormat s = new SimpleDateFormat("yyyy-MM-dd#HH-mm-ss");
+	static String responseCode = "";
 
 	public static void main(String[] args) {
 
@@ -49,8 +50,8 @@ public class main {
 			String timeStamp = s.format(new Date());
 			String[] parts = timeStamp.split("#");
 			String out = parts[0] + "," + parts[1] + "," + ping + "," + host;
+			System.out.println("Date: " + parts[0] + " Time: " + parts[1] + " Ping: " + ping + " Host: " + host +" ResponseCode: "+ responseCode);
 			writer.println(out);
-			System.out.println(out);
 			writer.flush();
 		}
 	}
@@ -60,26 +61,28 @@ public class main {
 
 		try {
 
-			
+			final long startTime = System.currentTimeMillis();
 			URL url = new URL(host);
 
 			HttpURLConnection urlc = (HttpURLConnection) url.openConnection();
 			urlc.setRequestMethod("GET");
 
 			urlc.setConnectTimeout(1000 * 30); // mTimeout is in seconds
-			final long startTime = System.currentTimeMillis();
 			urlc.connect();
-
-			System.out.println(urlc.getResponseCode());
-			final long endTime = System.currentTimeMillis();
-			pingTime = endTime - startTime;
-			urlc.disconnect();
-
+			int response = urlc.getResponseCode();
+			responseCode = String.valueOf(response);
+			if (response == 200) {
+				final long endTime = System.currentTimeMillis();
+				pingTime = endTime - startTime;
+				urlc.disconnect();
+			} else {
+				urlc.disconnect();
+			}
 		} catch (MalformedURLException e1) {
-			// TODO Auto-generated catch block
+			responseCode = "Malformed URL Exception";
 			e1.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			responseCode = "IO Exception";
 			e.printStackTrace();
 		}
 		return pingTime;
