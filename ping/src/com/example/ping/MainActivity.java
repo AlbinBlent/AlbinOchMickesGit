@@ -80,6 +80,17 @@ public class MainActivity extends Activity {
 				public void run() {
 					updateView(collectData() + "\n ");
 					logObject.writeToFile(collectData());
+
+					
+					
+					
+					/*
+					 * Ta med ifall vi vill att varje gång vi inte hinner få en
+					 * ny pingtid (pga lång pingtid) så skriver vi ut null
+					 * istället för den senaste pingtiden.
+					 */
+
+					// httpPing = null;
 				}
 			});
 		}
@@ -151,7 +162,8 @@ public class MainActivity extends Activity {
 		 */
 		SharedPreferences sharedPref = PreferenceManager
 				.getDefaultSharedPreferences(this);
-		httpAddress = sharedPref.getString("httpAddress", "http://httpbin.org/status/200");
+		httpAddress = sharedPref.getString("httpAddress",
+				"http://httpbin.org/status/200");
 		if (!httpAddress.startsWith("http://")) {
 			Toast.makeText(
 					MainActivity.this,
@@ -241,7 +253,8 @@ public class MainActivity extends Activity {
 				+ "\n" + "Lac: " + splitString[5] + "\n" + "CellID: "
 				+ splitString[6] + "\n" + "Net Type: " + splitString[7] + "\n"
 				+ "Http Ping: " + splitString[8] + "\n" + "Http Address: "
-				+ hostname + "\n" + "Response Code: " + httpRequest.getResponseCode());
+				+ hostname + "\n" + "Response Code: "
+				+ httpRequest.getResponseCode());
 
 	}
 }
